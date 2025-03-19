@@ -1,0 +1,1146 @@
+/* 添加全屏背景 */
+body {
+    background-image: url('../assets/images/scene/cafe.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    transition: background-image 0.1s;
+}
+
+/* 调整卡片样式使其半透明 */
+.card {
+    background: transparent;
+} 
+
+
+.visualizer-container {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 10px;
+    height: 200px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#visualizer {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.recording-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+}
+
+.recording-controls {
+    display: flex;
+    gap: 10px;
+}
+
+/* 新增声波线条样式 */
+.bar {
+    display: inline-block;
+    width: 5px;
+    margin: 0 3px;
+    background-color: #0d6efd;
+    border-radius: 10px;
+    transition: height 0.05s ease;
+}
+
+@media (max-width: 576px) {
+    .visualizer-container {
+        height: 150px;
+    }
+    
+    #recordButton, #stopButton, #demoButton {
+        font-size: 0.9rem;
+        padding: 0.375rem 0.75rem;
+    }
+    
+    .bar {
+        width: 3px;
+        margin: 0 2px;
+    }
+}
+
+/* 添加到现有 CSS */
+#bars-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+
+.chat-bubbles-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 0;
+    flex-shrink: 0;
+}
+
+/* 聊天气泡容器 */
+.chat-container {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 15px;
+    padding: 20px;
+    height: 70vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: opacity 0.3s ease;
+}
+
+/* 聊天气泡 */
+.chat-bubble {
+    flex-shrink: 0;
+    display: flex;
+    max-width: 80%;
+    margin-bottom: 30px;
+    position: relative;
+    align-items: flex-start;
+    transition: all 0.3s ease;
+}
+
+.chat-bubble:last-child {
+    margin-bottom: 0;
+}
+
+.chat-bubble.incoming {
+    margin-right: auto;
+}
+
+    .chat-bubble.incoming.recent{
+        margin-left: 20%;
+    }
+
+    @media (max-width: 768px) {
+        .chat-bubble.incoming.recent{
+            margin-left: 0px;
+        }
+    }
+
+.chat-bubble.outgoing {
+    margin-left: auto;
+    flex-direction: row-reverse;
+}
+
+    .chat-bubble.outgoing.recent{
+        margin-right: 20%;
+    }
+
+    @media (max-width: 768px) {
+        .chat-bubble.outgoing.recent{
+            margin-right: 0px;
+        }
+    }
+
+/* 聊天头像图片样式 */
+.chat-avatar .avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 调整聊天气泡头像容器 */
+.chat-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-right: 8px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    overflow: hidden;
+}
+
+.outgoing .chat-avatar {
+    margin-right: 0;
+    margin-left: 8px;
+}
+
+.incoming .chat-avatar {
+    background-color: #a0a0a0;
+}
+
+.bubble-content {
+    background-color: #f0f0f0;
+    border-radius: 18px;
+    padding: 10px;
+    position: relative;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    max-width: calc(100% - 44px);
+    overflow: hidden;
+}
+
+.incoming .bubble-content{
+    background-color: #77b2ff;
+}
+
+.outgoing .bubble-content{
+    background-color: #dcf8c6;
+}
+
+/* 添加气泡尖角 */
+.bubble-content:before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    top: 10px;
+}
+
+.incoming .bubble-content:before {
+    border-width: 8px 12px 8px 0;
+    border-color: transparent #f0f0f0 transparent transparent;
+    left: -12px;
+}
+
+.outgoing .bubble-content:before {
+    border-width: 8px 0 8px 12px;
+    border-color: transparent transparent transparent #dcf8c6;
+    right: -12px;
+}
+
+.incoming .bubble-content {
+    transform-origin: left center;
+}
+
+.outgoing .bubble-content {
+    transform-origin: right center;
+}
+
+.audio-player {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 200px;
+}
+
+.play-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.audio-visualizer {
+    flex-grow: 1;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+}
+
+    .audio-visualizer .bar {
+        width: 3px;
+        margin: 0 2px;
+        background-color: #555;
+    }
+    /* 音频波纹不是播放時的样式 */
+    .audio-visualizer .bar:not(.playing) {
+        height: 10px;
+    }
+
+.chat-time {
+    display: none;
+    font-size: 0.7rem;
+    color: #999;
+    text-align: right;
+    margin-top: 5px;
+}
+
+@media (max-width: 576px) {
+    .chat-bubble {
+        max-width: 90%;
+    }
+    
+    .audio-player {
+        min-width: 150px;
+    }
+    
+    .play-btn {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .audio-visualizer {
+        height: 32px;
+    }
+    
+    .chat-avatar {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+/* 聊天控制栏样式 */
+.chat-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    padding: 15px 0;
+    background-color: transparent;
+    z-index: 100;
+}
+
+.chat-controls button {
+    width: 100px;
+    height: 100px;
+    font-size: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    margin-bottom: 10px;
+}
+
+.chat-controls button.recording {
+    background-color: #dc3545;
+    animation: pulse-recording 1.5s infinite;
+}
+
+.recording-status {
+    font-size: 1rem;
+    color: #666;
+}
+
+/* 录音中的脉冲动画 */
+@keyframes pulse-recording {
+    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}
+
+/* 录音中的气泡样式 */
+.chat-bubble.recording .bubble-content {
+    animation: bubble-recording-glow 1.2s infinite alternate;
+    border: 2px solid #dc3545;
+    position: relative;
+}
+
+@keyframes bubble-recording-glow {
+    0% { 
+        box-shadow: 0 0 5px #dc3545;
+        background-color: rgba(255, 236, 236, 0.7);
+    }
+    100% { 
+        box-shadow: 0 0 20px #dc3545;
+        background-color: rgba(255, 236, 236, 1);
+    }
+}
+
+/* 添加录音指示器 */
+.chat-bubble.recording .bubble-content:after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 10px;
+    height: 10px;
+    background-color: #dc3545;
+    border-radius: 50%;
+    animation: recording-dot 1s infinite;
+}
+
+@keyframes recording-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* 角色容器样式 */
+.characters-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.character {
+    position: fixed;
+    bottom: 100px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.ai-character {
+    left: 50px;
+}
+
+.user-character {
+    right: 50px;
+}
+
+.character-avatar {
+    width: 20vw;
+    max-width: 300px;
+    height: 300px;
+    overflow: hidden;
+    position: relative;
+    border-radius: 100%;
+}
+
+.character-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.character-name {
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* 聊天容器调整 */
+.chat-container {
+    position: relative;
+    flex: 1;
+    margin: 0 20px;
+    height: 85vh;
+    padding: 10px;
+    padding-bottom: 16px;
+    background-color: transparent;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+/* 说话状态样式 */
+.bot-speaking, .bot-idle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: opacity 0.3s ease;
+}
+
+.d-none {
+    display: none !important;
+}
+
+/* 角色说话时的动画效果 */
+.character-avatar.speaking {
+    animation: avatar-pulse 1.5s infinite;
+}
+
+@keyframes avatar-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* 用户说话时的动画效果 */
+.user-character .character-avatar.speaking {
+    animation: user-speaking 1.5s infinite;
+}
+
+@keyframes user-speaking {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.05); }
+    60% { transform: scale(1); }
+    90% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .characters-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .character {
+        margin-bottom: 20px;
+        width: auto;
+    }
+    
+    .chat-container {
+        margin: 0;
+        width: 100%;
+    }
+    
+    .ai-character, .user-character {
+        display: none;
+    }
+}
+
+/* AI 输入指示器样式 */
+.typing-indicator {
+    opacity: 0.7;
+}
+
+.typing-dots {
+    display: flex;
+    padding: 10px 15px;
+    justify-content: center;
+    min-width: 60px;
+}
+
+.typing-dots span {
+    height: 8px;
+    width: 8px;
+    margin: 0 3px;
+    background-color: #555;
+    border-radius: 50%;
+    display: inline-block;
+    opacity: 0.4;
+}
+
+.typing-dots span:nth-child(1) {
+    animation: typing-dot 1.4s infinite;
+}
+
+.typing-dots span:nth-child(2) {
+    animation: typing-dot 1.4s infinite 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+    animation: typing-dot 1.4s infinite 0.4s;
+}
+
+@keyframes typing-dot {
+    0% { opacity: 0.4; transform: scale(1); }
+    20% { opacity: 1; transform: scale(1.2); }
+    50% { opacity: 0.4; transform: scale(1); }
+    100% { opacity: 0.4; transform: scale(1); }
+}
+
+/* 为移动设备调整控制栏 */
+@media (max-width: 768px) {
+    .chat-controls {
+        padding: 10px 0;
+    }
+    
+    .chat-container {
+        height: 80vh;
+        max-height: 80vh;
+        margin: 0;
+        padding-bottom: 70px;
+    }
+}
+
+/* 滚动条样式美化 */
+.chat-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+}
+
+.chat-container::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.chat-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* 最新气泡放大效果 */
+.chat-bubble.recent {
+    transform: scale(1.2);
+    transform-origin: bottom;
+    margin-bottom: 60px;
+    z-index: 2;
+}
+
+.chat-bubble.recent:last-child {
+    margin-bottom: 15px;
+}
+
+/* 场景选择器样式 */
+.scene-selector {
+    padding: 20px 0;
+    backdrop-filter: blur(10px);
+    margin-bottom: 20px;
+    transition: opacity 0.3s ease;
+}
+
+/* 场景选择器全屏样式 */
+.scene-selector.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0;
+}
+
+.scene-selector.fullscreen .scene-selector-inner {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.scene-selector-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: transparent;
+    border-radius: 15px;
+    padding: 40px;
+    max-width: 1200px;
+    width: 90%;
+    margin: 0 auto;
+}
+
+.scene-title {
+    margin-bottom: 30px;
+    color: #fff;
+    text-align: center;
+    font-weight: 600;
+    font-size: 32px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.scene-options {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    justify-content: center;
+    flex-wrap: nowrap;
+    margin-bottom: 30px;
+    width: 100%;
+    overflow-x: auto;
+    padding: 10px 5px;
+    
+    /* 美化滚动条 */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+/* 为 Webkit 浏览器自定义滚动条 */
+.scene-options::-webkit-scrollbar {
+    height: 6px;
+}
+
+.scene-options::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scene-options::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
+
+/* 场景选项卡片 */
+.scene-option-card {
+    width: 300px;
+    height: 300px;
+    min-width: 300px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border: 3px solid transparent;
+    position: relative;
+}
+
+/* 添加场景卡片悬停效果 */
+.scene-option-card:hover {
+    transform: translateY(-10px) scale(1.03);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* 添加选中效果 */
+.scene-option-card.active {
+    border-color: #007bff;
+    background-color: rgba(0, 123, 255, 0.2);
+}
+
+/* 添加选中标记 */
+.scene-option-card.active:after {
+    content: '✓';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.scene-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    padding: 20px;
+}
+
+.scene-option img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.scene-option span {
+    font-size: 18px;
+    font-weight: 500;
+    color: #fff;
+    text-align: center;
+}
+
+/* 开始对话按钮 */
+#startChatButton {
+    padding: 15px 50px;
+    font-size: 18px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    background-color: #007bff;
+    border: none;
+    border-radius: 50px;
+    margin-top: 40px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    letter-spacing: 1px;
+}
+
+#startChatButton:hover {
+    transform: scale(1.05);
+    background-color: #0069d9;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+#startChatButton:active {
+    transform: scale(0.98);
+}
+
+/* 场景切换按钮 */
+.scene-change-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    border-radius: 50px;
+    padding: 8px 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.scene-change-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.scene-change-btn i {
+    margin-right: 5px;
+}
+
+/* 聊天界面初始隐藏 */
+.chat-container-wrapper {
+    display: none;
+    width: 1000px;
+    height: 100vh;
+    margin: 0 auto;
+}
+
+/* 录音控制栏初始隐藏 */
+.chat-controls {
+    display: none;
+}
+
+/* 响应式调整 */
+@media (max-width: 1100px) {
+    .scene-options {
+        gap: 20px;
+    }
+    
+    .scene-option-card {
+        width: 280px;
+        height: 280px;
+        min-width: 280px;
+    }
+    
+    .scene-option img {
+        width: 180px;
+        height: 180px;
+    }
+}
+
+@media (max-width: 992px) {
+    .scroll-indicator {
+        display: block;
+    }
+    
+    .scene-option-card {
+        width: 250px;
+        height: 250px;
+        min-width: 250px;
+    }
+    
+    .scene-option img {
+        width: 160px;
+        height: 160px;
+    }
+}
+
+@media (max-width: 768px) {
+    .scene-selector-inner {
+        padding: 20px;
+    }
+    
+    .scene-options {
+        padding-bottom: 15px;
+    }
+    
+    .scene-option-card {
+        width: 220px;
+        height: 220px;
+        min-width: 220px;
+    }
+    
+    .scene-option img {
+        width: 140px;
+        height: 140px;
+    }
+    
+    .scene-title {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+    
+    #startChatButton {
+        padding: 10px 30px;
+        font-size: 16px;
+    }
+}
+
+/* 滚动指示器 */
+.scroll-indicator {
+    display: none;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.scroll-indicator i {
+    animation: scrollHint 1.5s infinite;
+    margin: 0 5px;
+}
+
+@keyframes scrollHint {
+    0% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    100% { transform: translateX(-5px); }
+}
+
+@media (max-width: 992px) {
+    .scroll-indicator {
+        display: block;
+    }
+}
+
+/* 大屏幕设备 (宽度大于 992px) */
+@media (min-width: 992px) {
+    /* 显示左右两侧的角色头像 */
+    .character {
+        display: flex;
+    }
+    
+    /* 隐藏聊天气泡中的头像 */
+    .chat-avatar {
+        display: none;
+    }
+    
+    /* 调整聊天气泡的边距 */
+    .chat-bubble.incoming {
+        margin-left: 20px;
+    }
+    
+    .chat-bubble.outgoing {
+        margin-right: 20px;
+    }
+    
+    /* 最新气泡放大效果 */
+    .chat-bubble.recent {
+        transform: scale(1.5);
+    }
+}
+
+/* 小屏幕设备 (宽度小于等于 992px) */
+@media (max-width: 992px) {
+    /* 隐藏左右两侧的角色头像 */
+    .character {
+        display: none;
+    }
+    
+    /* 显示聊天气泡中的头像 */
+    .chat-avatar {
+        display: flex;
+        width: 40px;
+        height: 40px;
+    }
+    
+    /* 调整聊天气泡的大小 */
+    .chat-bubble {
+        max-width: 85%;
+    }
+    
+    /* 最新气泡放大效果 - 小屏幕上稍微减小放大比例 */
+    .chat-bubble.recent {
+        transform: scale(1.1);
+    }
+}
+
+/* 超小屏幕设备 (宽度小于等于 576px) */
+@media (max-width: 576px) {
+    .chat-avatar {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .chat-bubble {
+        max-width: 90%;
+        margin-bottom: 15px;
+    }
+    
+    .bubble-content {
+        padding: 8px;
+    }
+    
+    .audio-visualizer {
+        height: 25px;
+    }
+    
+    .chat-time {
+        font-size: 10px;
+    }
+}
+
+/* 说话状态样式 */
+.character.dimmed {
+    opacity: 0.7;
+    filter: brightness(0.5);
+    transition: all 0.5s ease;
+}
+
+/* 聊天气泡说话状态 */
+.chat-bubble.speaking .chat-avatar {
+    animation: pulse 1.5s infinite;
+}
+
+/* 移除聊天气泡的暗淡效果 */
+.chat-bubble.dimmed {
+    /* 移除这些样式 */
+    opacity: 1;
+    transform: none;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+}
+
+/* 奖励动画样式 */
+.reward-animation {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    font-size: 100px;
+    color: gold;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+    pointer-events: none;
+}
+
+.reward-animation i {
+    display: block;
+}
+
+/* 星星雨动画 */
+.star {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-image: url('assets/images/star.png');
+    background-size: contain;
+    pointer-events: none;
+    z-index: 999;
+}
+
+/* 场景过渡遮罩层 */
+.scene-transition-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* 场景背景过渡效果 */
+body {
+    transition: background-image 0.1s; /* 减少背景切换时的生硬感 */
+}
+
+/* 场景元素过渡效果 */
+.scene-selector,
+.chat-container,
+.character {
+    transition: opacity 0.3s ease;
+}
+
+/* 添加展开完成的类 */
+.bubble-content.expanded {
+    opacity: 1;
+    width: auto;
+}
+
+/* 添加音频播放器显示的类 */
+.audio-player.visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* 聊天加载指示器 */
+.chat-loading-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.chat-loading-indicator .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* 聊天气泡容器初始化状态 */
+.chat-bubbles-container.initializing {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.chat-bubbles-container {
+    transition: opacity 0.3s ease;
+}
+
+/* 录音中的气泡内容闪烁动画 */
+.chat-bubble.recording .bubble-content {
+    animation: bubble-recording-pulse 1.5s infinite;
+    border: 1px dashed #dc3545;
+}
+
+@keyframes bubble-recording-pulse {
+    0% { 
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
+        background-color: rgba(255, 236, 236, 0.8);
+    }
+    50% { 
+        box-shadow: 0 0 10px 3px rgba(220, 53, 69, 0.6);
+        background-color: rgba(255, 236, 236, 1);
+    }
+    100% { 
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
+        background-color: rgba(255, 236, 236, 0.8);
+    }
+}
+
+/* 最新消息标签样式 */
+.chat-bubble.recent {
+    position: relative;
+}
+
+.chat-bubble.recent::before {
+    content: '最新消息';
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #ff4f00;
+    color: white;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    pointer-events: none;
+}
+
+/* 为传出消息调整位置 */
+.chat-bubble.outgoing.recent::before {
+    left: auto;
+    right: 10px;
+    transform: none;
+}
+
+/* 为传入消息调整位置 */
+.chat-bubble.incoming.recent::before {
+    left: 10px;
+    transform: none;
+}
+
+/* 响应式调整 */
+@media (max-width: 576px) {
+    .chat-bubble.recent::before {
+        font-size: 10px;
+        padding: 1px 6px;
+        top: -16px;
+    }
+}
