@@ -1107,7 +1107,7 @@ body {
 }
 
 .chat-bubble.recent::before {
-    content: '最新消息';
+    content: 'Latest Message';
     position: absolute;
     top: -25px;
     left: 50%;

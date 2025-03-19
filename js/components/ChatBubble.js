@@ -358,10 +358,10 @@ class ChatBubble {
     initAudioPlayer() {
         // 获取音频路径
         const audioPath = this.element.getAttribute('data-audio');
-        console.log('初始化音频播放器，路径:', audioPath);
+        console.log('Initializing audio player, path:', audioPath);
         
         if (!audioPath) {
-            console.error('未设置音频路径 (data-audio 属性)');
+            console.error('Audio path not set (data-audio attribute)');
             return;
         }
         
@@ -369,7 +369,7 @@ class ChatBubble {
         this.audioPlayer = new AudioPlayer(this.element, {
             audioPath: audioPath,
             onPlay: () => {
-                console.log('音频开始播放');
+                console.log('Audio playback started');
                 this.element.classList.add('playing');
                 
                 // 更新角色头像状态
@@ -381,7 +381,7 @@ class ChatBubble {
                 }
             },
             onPause: () => {
-                console.log('音频暂停');
+                console.log('Audio paused');
                 this.element.classList.remove('playing');
                 
                 // 更新角色头像状态
@@ -393,7 +393,7 @@ class ChatBubble {
                 }
             },
             onEnded: () => {
-                console.log('音频播放结束');
+                console.log('Audio playback ended');
                 this.element.classList.remove('playing');
                 
                 // 更新角色头像状态
@@ -408,7 +408,7 @@ class ChatBubble {
         
         // 如果设置了自动播放，则播放音频
         if (this.options.autoplay) {
-            console.log('设置了自动播放，尝试播放音频');
+            console.log('Autoplay set, attempting to play audio');
             setTimeout(() => {
                 this.audioPlayer.play();
             }, 500); // 延迟一点时间，确保 DOM 已完全渲染

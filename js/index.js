@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        console.log('已更新最新气泡样式，共有气泡：', bubbleCount);
+        console.log('Updated latest bubble styles, total bubbles:', bubbleCount);
     }
 
     // 修改现有的 initRecentBubbles 函数
@@ -197,25 +197,25 @@ document.addEventListener('DOMContentLoaded', function() {
     // 初始化场景管理器
     const sceneManager = new SceneManager({
         onSceneChange: (sceneName, scene) => {
-            console.log(`场景已切换到: ${sceneName}`);
+            console.log(`Scene changed to: ${sceneName}`);
             
             // 可以在这里添加其他场景切换逻辑
-            // 例如更新 AI 回复逻辑、加载场景特定的音频等
+            // For example, update AI response logic, load scene-specific audio, etc.
         },
         onChatStart: (sceneName, scene) => {
-            console.log(`开始在 ${sceneName} 场景中对话`);
+            console.log(`Starting conversation in ${sceneName} scene`);
             
             // 可以在这里添加对话开始时的逻辑
-            // 例如播放欢迎语音、显示引导提示等
+            // For example, play welcome voice, show guidance tips, etc.
             
             // 移除初始化状态，使聊天气泡容器可见
             document.getElementById('chatBubblesContainer').classList.remove('initializing');
         },
         onSceneSelectorShow: () => {
-            console.log('显示场景选择器');
+            console.log('Showing scene selector');
             
             // 可以在这里添加显示场景选择器时的逻辑
-            // 例如重置对话状态、播放背景音乐等
+            // For example, reset conversation state, play background music, etc.
         }
     });
 

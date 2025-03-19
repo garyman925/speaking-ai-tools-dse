@@ -62,7 +62,7 @@ class SceneManager {
      */
     async changeScene(sceneName) {
         if (!this.scenes[sceneName]) {
-            console.error(`场景 "${sceneName}" 不存在`);
+            console.error(`Scene "${sceneName}" does not exist`);
             return;
         }
 

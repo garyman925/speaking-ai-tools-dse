@@ -78,7 +78,7 @@ class AudioPlayer {
         // 检查是否在场景选择器中
         const sceneSelector = document.getElementById('sceneSelector');
         if (sceneSelector && sceneSelector.style.display !== 'none') {
-            console.log('场景选择器显示中，不播放音频');
+            console.log('Scene selector is displayed, not playing audio');
             return Promise.resolve();
         }
         
@@ -100,7 +100,7 @@ class AudioPlayer {
                 }
             }
             
-            console.log('尝试播放:', this.audioSrc);
+            console.log('Attempting to play:', this.audioSrc);
             await this.audio.play();
             this.isPlaying = true;
             
@@ -108,7 +108,7 @@ class AudioPlayer {
                 this.options.onPlay();
             }
         } catch (error) {
-            console.error('播放失败:', error);
+            console.error('Playback failed:', error);
             // 尝试不使用分析器直接播放
             try {
                 await this.audio.play();
@@ -123,7 +123,7 @@ class AudioPlayer {
                     this.options.onPlay();
                 }
             } catch (innerError) {
-                console.error('直接播放也失败:', innerError);
+                console.error('Direct playback also failed:', innerError);
                 
                 // 移除播放状态类
                 if (this.visualizerContainer && this.options.visualize) {

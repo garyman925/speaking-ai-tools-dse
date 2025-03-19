@@ -57,7 +57,7 @@ class ChatRecorder {
         this.elements.recordButton.classList.add('recording');
         
         if (this.elements.recordingStatus) {
-            this.elements.recordingStatus.textContent = '正在录音...';
+            this.elements.recordingStatus.textContent = 'Recording...';
         }
         
         // 记录开始时间
@@ -83,7 +83,7 @@ class ChatRecorder {
         this.elements.recordButton.classList.remove('recording');
         
         if (this.elements.recordingStatus) {
-            this.elements.recordingStatus.textContent = '点击开始录音';
+            this.elements.recordingStatus.textContent = 'Click to Start Recording';
         }
         
         console.log('准备播放录音完成音效');
