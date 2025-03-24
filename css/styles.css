@@ -85,6 +85,7 @@ body {
     width: 100%;
     min-height: 0;
     flex-shrink: 0;
+    position: absolute;
 }
 
 /* 聊天气泡容器 */
@@ -122,6 +123,12 @@ body {
         margin-left: 20%;
     }
 
+    .chat-bubble.incoming.recent .toggleable-text-content,
+    .chat-bubble.outgoing.recent .toggleable-text-content{
+        font-size: 1rem;
+        line-height: 1.2;
+    }
+
     @media (max-width: 768px) {
         .chat-bubble.incoming.recent{
             margin-left: 0px;
@@ -139,7 +146,7 @@ body {
 
     @media (max-width: 768px) {
         .chat-bubble.outgoing.recent{
-            margin-right: 0px;
+            margin-right: 6%;
         }
     }
 
@@ -180,6 +187,7 @@ body {
     background-color: #f0f0f0;
     border-radius: 18px;
     padding: 10px;
+    padding-right: 30px;
     position: relative;
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
     max-width: calc(100% - 44px);
@@ -191,7 +199,7 @@ body {
 }
 
 .outgoing .bubble-content{
-    background-color: #dcf8c6;
+    background-color: #a8db02;
 }
 
 /* 添加气泡尖角 */
@@ -667,9 +675,8 @@ body {
 
 /* 场景选项卡片 */
 .scene-option-card {
-    width: 300px;
+    width: 100%;
     height: 300px;
-    min-width: 300px;
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 15px;
     overflow: hidden;
@@ -786,6 +793,12 @@ body {
     width: 1000px;
     height: 100vh;
     margin: 0 auto;
+}
+
+@media (max-width: 1100px) {
+    .chat-container-wrapper {
+        width: 100%;
+    }
 }
 
 /* 录音控制栏初始隐藏 */
@@ -934,14 +947,15 @@ body {
     /* 最新气泡放大效果 - 小屏幕上稍微减小放大比例 */
     .chat-bubble.recent {
         transform: scale(1.1);
+        margin-bottom: 26px;
     }
 }
 
 /* 超小屏幕设备 (宽度小于等于 576px) */
 @media (max-width: 576px) {
     .chat-avatar {
-        width: 36px;
-        height: 36px;
+        width: 50px;
+        height: 50px;
     }
     
     .chat-bubble {
@@ -1139,8 +1153,245 @@ body {
 /* 响应式调整 */
 @media (max-width: 576px) {
     .chat-bubble.recent::before {
-        font-size: 10px;
-        padding: 1px 6px;
-        top: -16px;
+        font-size: .75rem;
+        top: -30px;
+        border-radius: 6px;
     }
+}
+
+/* 可切换文本区域样式 */
+.toggleable-text-container {
+    position: static;
+}
+
+.toggleable-text-content {
+    font-size: .95rem;
+    line-height: 1.2;
+    color: #000000;
+    padding: 5px 0px;
+    border-radius: 5px;
+    display: none;
+    transition: all 0.3s ease;
+}
+
+.toggle-text-btn {
+    position: absolute;
+    top: 3px;
+    right: 5px;
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 2px 5px;
+    font-size: 12px;
+    border-radius: 3px;
+}
+
+.toggle-text-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #555;
+}
+
+
+    .toggle-text-btn img{
+        width: 16px;
+        height: 16px;
+    }
+
+/* AI 气泡中的文本区域样式调整 */
+.chat-bubble.ai .toggleable-text-container {
+    border-top-color: rgba(255, 255, 255, 0.2);
+}
+
+.chat-bubble.ai .toggleable-text-content {
+    color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.chat-bubble.ai .toggle-text-btn {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.chat-bubble.ai .toggle-text-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* 录音按钮冷却状态 */
+.btn-danger.cooldown {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    cursor: not-allowed;
+    animation: pulse 2s infinite;
+}
+
+/* 录音按钮处理状态 */
+.btn-danger.processing {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    cursor: wait;
+    opacity: 0.7;
+}
+
+/* 按钮震动动画 */
+.shake {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+    40%, 60% { transform: translate3d(3px, 0, 0); }
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+/* 添加 Your Turn 提示样式 */
+.your-turn-alert {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 175, 73, 0.9);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    font-weight: bold;
+    font-size: 1rem;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    text-align: center;
+    max-width: 90%;
+}
+
+.your-turn-alert.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(10px);
+}
+
+.your-turn-alert .alert-icon {
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+@media (max-width: 576px) {
+    .your-turn-alert {
+        font-size: 0.9rem;
+        padding: 8px 16px;
+    }
+}
+
+/* 角色选择样式 */
+.character-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.character-options {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding: 10px 0;
+    margin-bottom: 15px;
+    justify-content: center;
+}
+
+.character-option-card {
+    flex: 0 0 auto;
+    width: 120px;
+    height: 150px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.character-option-card:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-5px);
+}
+
+.character-option-card.active {
+    border-color: #0d6efd;
+    background: rgba(13, 110, 253, 0.2);
+}
+
+.character-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+}
+
+.character-option img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.character-option span {
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+
+@media (max-width: 576px) {
+    .character-option-card {
+        width: 100px;
+        height: 130px;
+    }
+    
+    .character-option img {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+/* 最近消息的高亮样式 */
+.chat-bubble.recent {
+    animation: highlight-recent 2s ease-in-out;
+}
+
+@keyframes highlight-recent {
+    0% {
+        background-color: rgba(13, 110, 253, 0.1);
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+/* 添加声波条的通用样式 */
+.audio-visualizer .bar {
+    transition: height 0.2s ease; /* 添加平滑过渡效果 */
+    margin: 0 1px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 2px;
+    min-height: 3px; /* 确保最小高度 */
+}
+
+/* 确保 incoming 气泡的声波条样式与 outgoing 一致 */
+.chat-bubble.incoming .audio-visualizer .bar {
+    transition: height 0.2s ease;
+    background-color: rgba(255, 255, 255, 0.7);
+    min-height: 3px;
+}
+
+/* 确保非播放状态下的声波条也有高度 */
+.audio-visualizer:not(.playing) .bar {
+    height: var(--static-height, 5px) !important;
 }

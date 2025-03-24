@@ -182,6 +182,45 @@ class AudioService {
         
         return this.playSound(path, volume);
     }
+
+    /**
+     * 解锁音频上下文
+     * @returns {Promise} 解锁完成的 Promise
+     */
+    unlockAudioContext() {
+        return new Promise((resolve, reject) => {
+            if (!this.audioContext) {
+                this.initialize();
+            }
+            
+            // 检查音频上下文状态
+            if (this.audioContext.state === 'running') {
+                console.log('音频上下文已经处于运行状态');
+                resolve();
+                return;
+            }
+            
+            // 尝试恢复音频上下文
+            const resumePromise = this.audioContext.resume();
+            
+            // 创建一个短暂的音频节点并播放
+            const oscillator = this.audioContext.createOscillator();
+            oscillator.connect(this.audioContext.destination);
+            oscillator.start(0);
+            oscillator.stop(0.001);
+            
+            // 等待恢复完成
+            resumePromise
+                .then(() => {
+                    console.log('音频上下文已解锁');
+                    resolve();
+                })
+                .catch(error => {
+                    console.error('解锁音频上下文失败:', error);
+                    reject(error);
+                });
+        });
+    }
 }
 
 // 导出单例

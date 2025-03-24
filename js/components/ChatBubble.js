@@ -39,14 +39,33 @@ class ChatBubble {
      * 初始化气泡
      */
     initialize() {
-        console.log('音频路径:', this.audioSrc); // 添加调试信息
+        // 确定是否为 AI 气泡
+        const isAiBubble = this.element.closest('.chat-bubble.incoming') !== null;
+        
+        // 获取音频文件名（不包含路径）
+        let audioFileName = this.audioSrc;
+        
+        // 如果是完整路径，提取文件名
+        if (audioFileName.includes('/')) {
+            audioFileName = audioFileName.split('/').pop();
+        }
+        
+        // 根据气泡类型设置正确的音频路径
+        if (isAiBubble) {
+            this.audioSrc = `assets/audio/ai/${audioFileName}`;
+        } else {
+            this.audioSrc = `assets/audio/user/${audioFileName}`;
+        }
+        
+        console.log('[ChatBubble] 初始化气泡，音频路径:', this.audioSrc);
         
         // 创建音频播放器
         this.audioPlayer = new AudioPlayer(this.audioSrc, {
             visualize: true,
             onPlay: () => this.onPlay(),
             onPause: () => this.onPause(),
-            onEnded: () => this.onEnded()
+            onEnded: () => this.onEnded(),
+            debug: true // 启用调试
         });
         
         // 创建可视化器
@@ -56,10 +75,11 @@ class ChatBubble {
             this.visualizerContainer.id = visualizerId;
             
             this.visualizer = new Visualizer(visualizerId, {
-                barCount: this.options.barCount,
+                barCount: isAiBubble ? 20 : this.options.barCount, // AI 气泡可以有更多的条
                 minHeight: this.options.minHeight,
                 maxHeight: this.options.maxHeight,
-                barClass: this.options.barClass
+                barClass: this.options.barClass,
+                wavePattern: true // 启用波形模式
             });
         }
         
@@ -67,6 +87,117 @@ class ChatBubble {
         if (this.playButton) {
             this.playButton.addEventListener('click', () => this.togglePlay());
         }
+        
+        // 添加可切换显示的文本区域
+        this.addToggleableTextArea();
+    }
+    
+    /**
+     * 添加可切换显示的文本区域
+     */
+    addToggleableTextArea() {
+        // 创建文本容器
+        const textContainer = document.createElement('div');
+        textContainer.className = 'toggleable-text-container';
+        
+        // 创建文本内容区域
+        const textContent = document.createElement('div');
+        textContent.className = 'toggleable-text-content';
+        textContent.style.display = 'none'; // 默认隐藏
+        
+        // 获取当前场景的示例对话
+        const sampleText = this.getRandomSampleDialog();
+        textContent.textContent = sampleText;
+        
+        // 创建切换按钮
+        const toggleButton = document.createElement('button');
+        toggleButton.className = 'toggle-text-btn';
+        toggleButton.innerHTML = '<img src="assets/images/icons/toggle-text.png" alt="Toggle Text">';
+        toggleButton.title = '显示文本'; // 修改初始提示
+        
+        // 添加切换按钮点击事件
+        toggleButton.addEventListener('click', () => {
+            if (textContent.style.display === 'none') {
+                textContent.style.display = 'block';
+                toggleButton.title = '隐藏文本';
+            } else {
+                textContent.style.display = 'none';
+                toggleButton.title = '显示文本';
+            }
+        });
+        
+        // 将元素添加到容器中
+        textContainer.appendChild(textContent);
+        textContainer.appendChild(toggleButton);
+        
+        // 将文本容器添加到气泡元素中
+        const bubbleContent = this.element.closest('.bubble-content');
+        if (bubbleContent) {
+            bubbleContent.appendChild(textContainer);
+        } else {
+            // 如果找不到 bubble-content，直接添加到当前元素
+            this.element.appendChild(textContainer);
+        }
+    }
+
+    /**
+     * 获取随机示例对话
+     * @returns {string} 随机示例对话
+     */
+    getRandomSampleDialog() {
+        // 获取当前场景
+        const currentScene = window.sceneManager ? window.sceneManager.currentScene : 'cafe';
+        
+        try {
+            // 获取场景配置
+            const scenes = window.sceneManager ? window.sceneManager.scenes : null;
+            
+            if (scenes && scenes[currentScene] && scenes[currentScene].sampleDialogs) {
+                const sampleDialogs = scenes[currentScene].sampleDialogs;
+                
+                // 检查是否为AI或用户气泡
+                const isAI = this.element.closest('.chat-bubble.ai') !== null;
+                
+                // 根据气泡类型选择合适的示例对话
+                // 通常，AI的示例对话是问题或提示，用户的示例对话是回答
+                let appropriateDialogs = [];
+                
+                if (isAI) {
+                    // 为AI选择看起来像问题或提示的对话
+                    appropriateDialogs = sampleDialogs.filter(dialog => 
+                        dialog.endsWith('?') || 
+                        dialog.includes('would you like') || 
+                        dialog.includes('can I help') ||
+                        dialog.includes('please') ||
+                        !dialog.includes('I would like')
+                    );
+                } else {
+                    // 为用户选择看起来像回答的对话
+                    appropriateDialogs = sampleDialogs.filter(dialog => 
+                        !dialog.endsWith('?') || 
+                        dialog.includes('I would like') ||
+                        dialog.includes('I want') ||
+                        dialog.includes('Could you')
+                    );
+                }
+                
+                // 如果没有找到合适的对话，使用所有对话
+                if (appropriateDialogs.length === 0) {
+                    appropriateDialogs = sampleDialogs;
+                }
+                
+                // 随机选择一个对话
+                const randomIndex = Math.floor(Math.random() * appropriateDialogs.length);
+                return appropriateDialogs[randomIndex];
+            }
+        } catch (error) {
+            console.error('获取示例对话失败:', error);
+        }
+        
+        // 如果出错或没有找到示例对话，返回默认文本
+        return this.element.closest('.chat-bubble.ai') !== null
+            ? '您好，有什么我可以帮您的吗？'
+            : '我想了解更多信息。';
     }
 
     /**
@@ -135,37 +266,77 @@ class ChatBubble {
     }
 
     /**
-     * 切换播放/暂停
+     * 切换播放状态
      */
     togglePlay() {
-        console.log('切换播放状态, 当前状态:', this.audioPlayer.isPlaying);
+        console.log('[ChatBubble] 切换播放状态', this.audioSrc);
         
-        if (this.audioPlayer.isPlaying) {
-            this.audioPlayer.stop();
-            this.onPause();
-        } else {
-            // 停止所有其他播放中的气泡
-            if (window.activeChatBubble && window.activeChatBubble !== this) {
-                window.activeChatBubble.audioPlayer.stop();
-                window.activeChatBubble.onPause();
-            }
-            
-            // 确保音频上下文已初始化
-            AudioService.initialize();
-            
-            this.audioPlayer.play().catch(error => {
-                console.error('播放失败:', error);
-                alert('无法播放音频，请检查音频文件是否存在。');
-            });
-            
-            window.activeChatBubble = this;
+        if (!this.audioSrc) {
+            console.error('[ChatBubble] 音频源为空，无法播放');
+            return;
         }
+        
+        if (!this.audioPlayer) {
+            console.error('[ChatBubble] 音频播放器未初始化，无法播放');
+            return;
+        }
+        
+        if (this.isToggling) {
+            console.log('[ChatBubble] 忽略重复切换请求');
+            return;
+        }
+        
+        this.isToggling = true;
+        
+        try {
+            if (this.audioPlayer.isPlaying) {
+                console.log('[ChatBubble] 暂停播放');
+                // 检查是否是用户主动点击
+                const isUserInitiated = document.activeElement === this.playButton || 
+                                       (event && event.isTrusted);
+                
+                if (isUserInitiated) {
+                    console.log('[ChatBubble] 用户主动暂停');
+                    this.audioPlayer.pause();
+                } else {
+                    console.log('[ChatBubble] 非用户主动操作，忽略暂停请求');
+                    // 不执行暂停操作
+                }
+            } else {
+                console.log('[ChatBubble] 开始播放');
+                
+                // 检查音频文件是否存在
+                fetch(this.audioSrc, { method: 'HEAD' })
+                    .then(response => {
+                        if (response.ok) {
+                            console.log(`[ChatBubble] 音频文件存在: ${this.audioSrc}`);
+                            this.audioPlayer.play();
+                        } else {
+                            console.error(`[ChatBubble] 音频文件不存在: ${this.audioSrc}, 状态码: ${response.status}`);
+                            alert(`无法播放音频，文件不存在: ${this.audioSrc}`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error(`[ChatBubble] 检查音频文件时出错: ${this.audioSrc}`, error);
+                        this.audioPlayer.play(); // 尝试播放，可能是跨域问题导致 fetch 失败
+                    });
+            }
+        } catch (error) {
+            console.error('[ChatBubble] 切换播放状态时出错:', error);
+        }
+        
+        // 防止短时间内多次触发
+        setTimeout(() => {
+            this.isToggling = false;
+        }, 300);
     }
 
     /**
      * 播放时的处理
      */
     onPlay() {
+        console.log('[ChatBubble] 播放开始回调');
+        
         if (this.playButton) {
             this.playButton.innerHTML = '<i class="bi bi-pause-fill"></i>';
         }
@@ -258,10 +429,63 @@ class ChatBubble {
     }
 
     /**
-     * 播放结束时的处理
+     * 音频播放结束处理
      */
     onEnded() {
-        this.onPause();
+        console.log('[ChatBubble] 播放结束回调');
+        
+        // 更新播放按钮图标
+        if (this.playButton) {
+            this.playButton.innerHTML = '<i class="bi bi-play-fill"></i>';
+        }
+        
+        // 停止可视化效果
+        if (this.visualizer) {
+            this.visualizer.stop();
+        }
+        
+        // 检查是否为 AI 气泡
+        const isAiBubble = this.element.closest('.chat-bubble.incoming') !== null;
+        console.log('[ChatBubble] 是否为AI气泡:', isAiBubble);
+        
+        // 如果是 AI 气泡，显示 "Your Turn" 提示
+        if (isAiBubble) {
+            console.log('[ChatBubble] 显示 Your Turn 提示');
+            this.showYourTurnAlert();
+        }
+    }
+
+    /**
+     * 显示 "Your Turn" 提示
+     */
+    showYourTurnAlert() {
+        // 检查是否已存在提示元素
+        let alertElement = document.querySelector('.your-turn-alert');
+        
+        // 如果不存在，创建一个新的
+        if (!alertElement) {
+            alertElement = document.createElement('div');
+            alertElement.className = 'your-turn-alert';
+            alertElement.innerHTML = '<i class="bi bi-mic-fill alert-icon"></i>Your Turn! Please speak.';
+            document.body.appendChild(alertElement);
+        }
+        
+        // 显示提示
+        setTimeout(() => {
+            alertElement.classList.add('show');
+            
+            // 3秒后自动隐藏
+            setTimeout(() => {
+                alertElement.classList.remove('show');
+                
+                // 完全隐藏后移除元素
+                setTimeout(() => {
+                    if (alertElement.parentNode) {
+                        alertElement.parentNode.removeChild(alertElement);
+                    }
+                }, 300);
+            }, 3000); // 改回3秒
+        }, 100);
     }
 
     /**
@@ -437,6 +661,24 @@ class ChatBubble {
             this.visualizerContainer.classList.remove('playing');
             // 应用静态高度
             this.visualizer.applyStaticHeights();
+        }
+    }
+
+    /**
+     * 播放音频
+     */
+    play() {
+        if (this.audioPlayer) {
+            this.audioPlayer.play();
+        }
+    }
+
+    /**
+     * 暂停音频
+     */
+    pause() {
+        if (this.audioPlayer) {
+            this.audioPlayer.pause();
         }
     }
 }

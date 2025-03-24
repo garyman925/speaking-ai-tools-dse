@@ -1,8 +1,8 @@
 import AudioService from './services/AudioService.js';
-import StorageService from './services/StorageService.js';
-import AudioRecorder from './components/AudioRecorder.js';
-import AudioPlayer from './components/AudioPlayer.js';
-import Visualizer from './components/Visualizer.js';
+//import StorageService from './services/StorageService.js';
+//import AudioRecorder from './components/AudioRecorder.js';
+//import AudioPlayer from './components/AudioPlayer.js';
+//import Visualizer from './components/Visualizer.js';
 import ChatBubble from './components/ChatBubble.js';
 import ChatRecorder from './components/ChatRecorder.js';
 import SceneManager from './components/SceneManager.js';
@@ -81,8 +81,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelector('.bot-speaking').classList.add('d-none');
         },
         // 设置示例音频路径
-        demoAudioPath: 'assets/audio/demo/user_recording.mp3',
-        demoAiResponsePath: 'assets/audio/demo/ai_response.mp3',
+        //demoAudioPath: 'assets/audio/demo/user_recording.mp3',
+        //demoAiResponsePath: 'assets/audio/demo/ai_response.mp3',
         aiResponseDelay: 1500 // AI 回复延迟时间（毫秒）
     });
     
@@ -228,18 +228,30 @@ document.addEventListener('DOMContentLoaded', function() {
     // 将动画服务暴露给全局，方便其他组件使用
     window.AnimationService = AnimationService;
 
-    // 确保在页面加载时不会自动播放音频
+    // 修改现有的自动播放禁用代码
     document.addEventListener('DOMContentLoaded', () => {
-        // 禁用所有预设的音频元素自动播放
-        document.querySelectorAll('audio').forEach(audio => {
-            audio.autoplay = false;
-            audio.pause();
-        });
+        // 不再全局禁用自动播放，而是将控制权交给场景管理器
+        console.log('页面加载完成，准备初始化音频...');
         
-        // 禁用所有带有 data-audio 属性的元素自动播放
-        document.querySelectorAll('[data-audio]').forEach(element => {
-            element.removeAttribute('autoplay');
-        });
+        // 创建一个音频上下文解锁函数，用于在用户交互后解锁音频
+        window.unlockAudio = function() {
+            // 创建一个空的音频上下文并播放一个短暂的静音音频
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            oscillator.connect(audioContext.destination);
+            oscillator.start(0);
+            oscillator.stop(0.001);
+            
+            console.log('音频上下文已解锁');
+            
+            // 移除解锁事件监听器
+            document.removeEventListener('click', window.unlockAudio);
+            document.removeEventListener('touchstart', window.unlockAudio);
+        };
+        
+        // 添加用户交互事件监听器，用于解锁音频
+        document.addEventListener('click', window.unlockAudio);
+        document.addEventListener('touchstart', window.unlockAudio);
     });
 
     // 预加载音频文件
@@ -262,4 +274,306 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 调用预加载函数
     preloadAudioFiles();
+
+    // 在 DOMContentLoaded 事件处理函数中添加以下代码
+    function simulateScroll() {
+        const bubblesContainer = document.getElementById('chatBubblesContainer');
+        const chatContainer = document.getElementById('chatContainer');
+        
+        if (bubblesContainer && chatContainer) {
+            console.log('初始化模拟滚动');
+            
+            // 当前滚动位置
+            let scrollTop = 0;
+            // 最大可滚动高度
+            let maxScroll = Math.max(0, bubblesContainer.scrollHeight - chatContainer.clientHeight);
+            
+            // 更新滚动位置的函数
+            function updateScroll() {
+                // 确保滚动值在有效范围内
+                scrollTop = Math.max(0, Math.min(scrollTop, maxScroll));
+                // 应用滚动位置
+                bubblesContainer.style.transform = `translateY(-${scrollTop}px)`;
+                bubblesContainer.style.transition = 'transform 0.1s ease-out';
+            }
+            
+            // 添加鼠标滚轮事件
+            chatContainer.addEventListener('wheel', (event) => {
+                event.preventDefault();
+                scrollTop += event.deltaY;
+                updateScroll();
+            }, { passive: false });
+            
+            // 添加触摸事件支持
+            let touchStartY = 0;
+            let lastTouchY = 0;
+            let touchVelocity = 0;
+            let isTouching = false;
+            let animationFrame = null;
+            
+            chatContainer.addEventListener('touchstart', (event) => {
+                touchStartY = event.touches[0].clientY;
+                lastTouchY = touchStartY;
+                isTouching = true;
+                touchVelocity = 0;
+                
+                // 停止任何正在进行的惯性滚动
+                if (animationFrame) {
+                    cancelAnimationFrame(animationFrame);
+                    animationFrame = null;
+                }
+            }, { passive: false });
+            
+            chatContainer.addEventListener('touchmove', (event) => {
+                if (!isTouching) return;
+                
+                const touchY = event.touches[0].clientY;
+                const diff = lastTouchY - touchY;
+                
+                // 计算速度
+                touchVelocity = diff;
+                
+                scrollTop += diff;
+                lastTouchY = touchY;
+                updateScroll();
+                
+                // 防止页面整体滚动
+                event.preventDefault();
+            }, { passive: false });
+            
+            // 添加触摸结束事件，实现惯性滚动
+            function handleTouchEnd() {
+                if (!isTouching) return;
+                isTouching = false;
+                
+                // 实现惯性滚动
+                let velocity = touchVelocity * 2; // 增加一点惯性
+                
+                function inertiaScroll() {
+                    if (Math.abs(velocity) > 0.5) {
+                        scrollTop += velocity;
+                        velocity *= 0.95; // 减速因子
+                        updateScroll();
+                        animationFrame = requestAnimationFrame(inertiaScroll);
+                    } else {
+                        cancelAnimationFrame(animationFrame);
+                        animationFrame = null;
+                    }
+                }
+                
+                if (Math.abs(velocity) > 1) {
+                    animationFrame = requestAnimationFrame(inertiaScroll);
+                }
+            }
+            
+            chatContainer.addEventListener('touchend', handleTouchEnd, { passive: true });
+            chatContainer.addEventListener('touchcancel', handleTouchEnd, { passive: true });
+            
+            // 添加滚动到底部的函数
+            window.scrollToBottom = function(animate = true) {
+                // 重新计算最大滚动值
+                maxScroll = Math.max(0, bubblesContainer.scrollHeight - chatContainer.clientHeight);
+                
+                if (animate) {
+                    // 使用平滑动画滚动到底部
+                    bubblesContainer.style.transition = 'transform 0.3s ease-out';
+                    scrollTop = maxScroll;
+                    updateScroll();
+                    
+                    // 恢复较短的过渡时间
+                    setTimeout(() => {
+                        bubblesContainer.style.transition = 'transform 0.1s ease-out';
+                    }, 300);
+                } else {
+                    // 立即滚动到底部
+                    scrollTop = maxScroll;
+                    updateScroll();
+                }
+                
+                console.log('滚动到底部', scrollTop, maxScroll);
+            };
+            
+            // 监听内容变化，更新最大滚动值
+            const observer = new MutationObserver(() => {
+                // 重新计算最大滚动值
+                maxScroll = Math.max(0, bubblesContainer.scrollHeight - chatContainer.clientHeight);
+                
+                // 如果在底部附近，保持在底部
+                if (maxScroll - scrollTop < 100) {
+                    window.scrollToBottom();
+                }
+                
+                console.log('内容变化', bubblesContainer.scrollHeight, chatContainer.clientHeight, maxScroll);
+            });
+            
+            observer.observe(bubblesContainer, { childList: true, subtree: true });
+            
+            // 监听窗口大小变化
+            window.addEventListener('resize', () => {
+                // 重新计算最大滚动值
+                maxScroll = Math.max(0, bubblesContainer.scrollHeight - chatContainer.clientHeight);
+                
+                // 如果在底部附近，保持在底部
+                if (maxScroll - scrollTop < 100) {
+                    window.scrollToBottom(false);
+                } else {
+                    // 确保滚动位置有效
+                    scrollTop = Math.min(scrollTop, maxScroll);
+                    updateScroll();
+                }
+            });
+            
+            // 初始滚动到底部
+            setTimeout(() => {
+                window.scrollToBottom(false);
+            }, 500);
+            
+            console.log('模拟滚动初始化完成');
+        }
+    }
+
+    // 调用函数
+    simulateScroll();
+
+    // 添加全局函数以显示 "Your Turn" 提示
+    window.showYourTurnAlert = function(customMessage) {
+        // 检查是否已存在提示元素
+        let alertElement = document.querySelector('.your-turn-alert');
+        
+        // 如果不存在，创建一个新的
+        if (!alertElement) {
+            alertElement = document.createElement('div');
+            alertElement.className = 'your-turn-alert';
+            alertElement.innerHTML = `<i class="bi bi-mic-fill alert-icon"></i>${customMessage || 'Your Turn! Please speak.'}`;
+            document.body.appendChild(alertElement);
+        } else {
+            // 如果存在，更新消息
+            alertElement.innerHTML = `<i class="bi bi-mic-fill alert-icon"></i>${customMessage || 'Your Turn! Please speak.'}`;
+        }
+        
+        // 显示提示
+        setTimeout(() => {
+            alertElement.classList.add('show');
+            
+            // 3秒后自动隐藏
+            setTimeout(() => {
+                alertElement.classList.remove('show');
+                
+                // 完全隐藏后移除元素
+                setTimeout(() => {
+                    if (alertElement.parentNode) {
+                        alertElement.parentNode.removeChild(alertElement);
+                    }
+                }, 300);
+            }, 3000); // 改回3秒
+        }, 100);
+    };
+
+    /**
+     * 检查必要的音频文件
+     */
+    function checkAudioFiles() {
+        const audioFiles = [
+            'assets/audio/ai/cafe_welcome.mp3',
+            'assets/audio/ai/office_welcome.mp3',
+            'assets/audio/ai/hospital_welcome.mp3'
+        ];
+        
+        console.log('检查音频文件...');
+        
+        audioFiles.forEach(file => {
+            fetch(file, { method: 'HEAD' })
+                .then(response => {
+                    if (response.ok) {
+                        console.log(`音频文件存在: ${file}`);
+                    } else {
+                        console.error(`音频文件不存在: ${file}, 状态码: ${response.status}`);
+                    }
+                })
+                .catch(error => {
+                    console.error(`检查音频文件时出错: ${file}`, error);
+                });
+        });
+    }
+
+    // 调用检查函数
+    checkAudioFiles();
+
+    /**
+     * 检查必要的图片资源
+     */
+    function checkImageFiles() {
+        const imageFiles = [
+            'assets/images/avatars/candidate.png',
+            'assets/images/avatars/candidate_speaking.webp',
+            'assets/images/avatars/male_candidate.png',
+            'assets/images/avatars/male_candidate_speaking.webp'
+        ];
+        
+        console.log('检查图片资源...');
+        
+        imageFiles.forEach(file => {
+            fetch(file, { method: 'HEAD' })
+                .then(response => {
+                    if (response.ok) {
+                        console.log(`图片资源存在: ${file}`);
+                    } else {
+                        console.error(`图片资源不存在: ${file}, 状态码: ${response.status}`);
+                    }
+                })
+                .catch(error => {
+                    console.error(`检查图片资源时出错: ${file}`, error);
+                });
+        });
+    }
+
+    // 调用检查函数
+    checkImageFiles();
+
+    /**
+     * 添加聊天气泡
+     * @param {string} type - 气泡类型 ('incoming' 或 'outgoing')
+     * @param {string} audioFile - 音频文件名（不包含路径）
+     */
+    function addChatBubble(type, audioFile) {
+        const bubbleContainer = document.querySelector('.chat-bubbles-container');
+        
+        // 创建气泡元素
+        const bubble = document.createElement('div');
+        bubble.className = `chat-bubble ${type}`;
+        bubble.setAttribute('data-character', type === 'incoming' ? 'ai' : 'user');
+        
+        // 创建气泡内容
+        const bubbleContent = document.createElement('div');
+        bubbleContent.className = 'bubble-content';
+        
+        // 创建音频播放器
+        const audioPlayer = document.createElement('div');
+        audioPlayer.className = 'audio-player';
+        audioPlayer.setAttribute('data-audio-src', audioFile); // 只设置文件名，路径将在 ChatBubble 中处理
+        
+        // 创建播放按钮
+        const playButton = document.createElement('button');
+        playButton.className = 'play-button';
+        playButton.innerHTML = '<i class="bi bi-play-fill"></i>';
+        
+        // 创建可视化器容器
+        const visualizerContainer = document.createElement('div');
+        visualizerContainer.className = 'audio-visualizer';
+        
+        // 组装元素
+        audioPlayer.appendChild(playButton);
+        audioPlayer.appendChild(visualizerContainer);
+        bubbleContent.appendChild(audioPlayer);
+        bubble.appendChild(bubbleContent);
+        
+        // 添加到容器
+        bubbleContainer.appendChild(bubble);
+        
+        // 初始化气泡
+        new ChatBubble(audioPlayer);
+        
+        // 滚动到底部
+        scrollToBottom();
+    }
 }); 

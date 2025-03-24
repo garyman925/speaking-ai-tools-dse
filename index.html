@@ -12,6 +12,9 @@
 </head>
 <body>
     
+    <!-- 在 body 的开始处添加 -->
+    <div id="alertContainer"></div>
+
      <!-- AI Bot Character - For Large Screens -->
     <div class="character ai-character">
         <div class="character-avatar">
@@ -66,6 +69,25 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- 添加角色选择部分 -->
+                        <h3 class="character-title mt-4">Select Your Character</h3>
+                        
+                        <div class="character-options">
+                            <div class="character-option-card active" data-character="female">
+                                <div class="character-option">
+                                    <img src="assets/images/avatars/candidate.png" alt="Female Character">
+                                    <span>Female</span>
+                                </div>
+                            </div>
+                            <div class="character-option-card" data-character="male">
+                                <div class="character-option">
+                                    <img src="assets/images/avatars/male_candidate.png" alt="Male Character">
+                                    <span>Male</span>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <button id="startChatButton" class="btn btn-primary mt-4">Start Conversation</button>
                     </div>
                 </div>
@@ -108,5 +130,89 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.10.0/lottie.min.js"></script>
+
+    <script>
+        // 全局调试开关
+        window.DEBUG = {
+            audio: true,      // 音频调试
+            animation: false, // 动画调试
+            events: true,     // 事件调试
+            ui: false         // UI调试
+        };
+    </script>
+
+    <!-- 调试面板 -->
+    <div id="debugPanel" style="position: fixed; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 10px; border-radius: 5px; font-size: 12px; max-width: 300px; max-height: 200px; overflow: auto; z-index: 9999; display: none;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <strong>调试面板</strong>
+            <button onclick="document.getElementById('debugLog').innerHTML = ''" style="background: none; border: none; color: white; cursor: pointer;">清除</button>
+        </div>
+        <div id="debugLog"></div>
+    </div>
+
+    <script>
+        // 添加调试日志函数
+        window.debugLog = function(message, type = 'info') {
+            if (!window.DEBUG || !window.DEBUG.audio) return;
+            
+            const debugPanel = document.getElementById('debugPanel');
+            const debugLog = document.getElementById('debugLog');
+            
+            if (debugPanel && debugLog) {
+                debugPanel.style.display = 'block';
+                
+                const logItem = document.createElement('div');
+                logItem.style.borderBottom = '1px solid rgba(255,255,255,0.2)';
+                logItem.style.padding = '3px 0';
+                
+                const timestamp = new Date().toLocaleTimeString();
+                
+                let color = 'white';
+                switch (type) {
+                    case 'error': color = '#ff6b6b'; break;
+                    case 'warn': color = '#feca57'; break;
+                    case 'success': color = '#1dd1a1'; break;
+                    default: color = 'white';
+                }
+                
+                logItem.innerHTML = `<span style="color: #aaa; font-size: 10px;">${timestamp}</span> <span style="color: ${color}">${message}</span>`;
+                
+                debugLog.appendChild(logItem);
+                debugLog.scrollTop = debugLog.scrollHeight;
+                
+                // 限制日志数量
+                while (debugLog.children.length > 50) {
+                    debugLog.removeChild(debugLog.firstChild);
+                }
+            }
+            
+            // 同时输出到控制台
+            switch (type) {
+                case 'error': console.error(message); break;
+                case 'warn': console.warn(message); break;
+                case 'success': console.log('%c' + message, 'color: #1dd1a1'); break;
+                default: console.log(message);
+            }
+        };
+    </script>
+
+    <!-- 添加到 index.html 中，用于调试 -->
+    <button id="debugButton" style="position: fixed; bottom: 10px; left: 10px; z-index: 9999; background: rgba(0,0,0,0.7); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+        Debug
+    </button>
+
+    <script>
+        document.getElementById('debugButton').addEventListener('click', function() {
+            // 获取 SceneManager 实例
+            const sceneManager = window.sceneManager;
+            if (sceneManager) {
+                console.log('当前场景:', sceneManager.currentScene);
+                console.log('当前角色:', sceneManager.currentCharacter);
+                console.log('场景配置:', sceneManager.scenes[sceneManager.currentScene]);
+            } else {
+                console.log('SceneManager 未初始化');
+            }
+        });
+    </script>
 </body>
 </html> 

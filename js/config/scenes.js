@@ -4,23 +4,34 @@
 const scenes = {
     // Cafe scene
     cafe: {
+        id: 'cafe',
         name: 'Cafe',
         background: 'assets/images/scene/cafe.png',
         thumbnail: 'assets/images/scene/cafe_thumb.png',
         aiCharacter: {
-            name: 'Cafe Staff',
+            name: 'Barista',
             avatar: {
-                idle: 'assets/images/avatars/cafe_staff.png',
-                speaking: 'assets/images/avatars/cafe_staff_speaking.webp'
+                idle: 'assets/images/avatars/bot.png',
+                speaking: 'assets/images/avatars/bot_speaking.webp'
             }
         },
-        userCharacter: {
-            name: 'Customer',
-            avatar: {
-                idle: 'assets/images/avatars/customer.png',
-                speaking: 'assets/images/avatars/customer_speaking.webp'
+        userCharacters: {
+            female: {
+                name: 'Customer',
+                avatar: {
+                    idle: 'assets/images/avatars/candidate.png',
+                    speaking: 'assets/images/avatars/candidate_speaking.webp'
+                }
+            },
+            male: {
+                name: 'Customer',
+                avatar: {
+                    idle: 'assets/images/avatars/male_candidate.png',
+                    speaking: 'assets/images/avatars/male_candidate_speaking.webp'
+                }
             }
         },
+        userCharacter: null,
         description: 'In the cafe scene, you are a customer interacting with a cafe staff member. You can try ordering food, asking about the menu, or discussing coffee varieties.',
         sampleDialogs: [
             'Hello, what would you like to drink today?',
@@ -49,13 +60,23 @@ const scenes = {
                 speaking: 'assets/images/avatars/colleague_speaking.webp'
             }
         },
-        userCharacter: {
-            name: 'Employee',
-            avatar: {
-                idle: 'assets/images/avatars/employee.png',
-                speaking: 'assets/images/avatars/employee_speaking.webp'
+        userCharacters: {
+            female: {
+                name: 'Interviewee',
+                avatar: {
+                    idle: 'assets/images/avatars/candidate.png',
+                    speaking: 'assets/images/avatars/candidate_speaking.webp'
+                }
+            },
+            male: {
+                name: 'Interviewee',
+                avatar: {
+                    idle: 'assets/images/avatars/male_candidate.png',
+                    speaking: 'assets/images/avatars/male_candidate_speaking.webp'
+                }
             }
         },
+        userCharacter: null,
         description: 'In the office scene, you are an employee discussing work-related matters with a colleague. You can discuss project progress, schedule meetings, or solve work problems.',
         sampleDialogs: [
             'Regarding this project, we need to discuss the schedule.',
@@ -84,13 +105,23 @@ const scenes = {
                 speaking: 'assets/images/avatars/doctor_speaking.webp'
             }
         },
-        userCharacter: {
-            name: 'Patient',
-            avatar: {
-                idle: 'assets/images/avatars/patient.png',
-                speaking: 'assets/images/avatars/patient_speaking.webp'
+        userCharacters: {
+            female: {
+                name: 'Patient',
+                avatar: {
+                    idle: 'assets/images/avatars/candidate.png',
+                    speaking: 'assets/images/avatars/candidate_speaking.webp'
+                }
+            },
+            male: {
+                name: 'Patient',
+                avatar: {
+                    idle: 'assets/images/avatars/male_candidate.png',
+                    speaking: 'assets/images/avatars/male_candidate_speaking.webp'
+                }
             }
         },
+        userCharacter: null,
         description: 'In the hospital scene, you are a patient consulting with a doctor. You can describe symptoms, ask about treatment options, or discuss health concerns.',
         sampleDialogs: [
             'Please tell me about your recent symptoms.',

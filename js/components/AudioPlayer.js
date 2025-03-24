@@ -15,7 +15,8 @@ class AudioPlayer {
             visualize: false,
             onPlay: null,
             onPause: null,
-            onEnded: null
+            onEnded: null,
+            debug: false
         }, options);
         
         this.audio = new Audio(audioSrc);
@@ -38,12 +39,43 @@ class AudioPlayer {
      * 初始化播放器
      */
     initialize() {
+        if (this.options.debug) console.log(`[AudioPlayer] 初始化音频播放器: ${this.audioSrc}`);
+        
+        this.audio.addEventListener('play', () => {
+            this.isPlaying = true;
+            if (this.options.debug) console.log(`[AudioPlayer] 音频开始播放: ${this.audioSrc}`);
+            if (this.options.onPlay) this.options.onPlay();
+        });
+        
+        this.audio.addEventListener('pause', () => {
+            this.isPlaying = false;
+            if (this.options.debug) console.log(`[AudioPlayer] 音频暂停: ${this.audioSrc}`);
+            if (this.options.onPause) this.options.onPause();
+        });
+        
         this.audio.addEventListener('ended', () => {
             this.isPlaying = false;
-            if (this.options.onEnded) {
-                this.options.onEnded();
-            }
+            if (this.options.debug) console.log(`[AudioPlayer] 音频播放结束: ${this.audioSrc}`);
+            if (this.options.onEnded) this.options.onEnded();
         });
+        
+        // 添加更多调试事件
+        if (this.options.debug) {
+            this.audio.addEventListener('loadstart', () => console.log(`[AudioPlayer] 开始加载: ${this.audioSrc}`));
+            this.audio.addEventListener('loadedmetadata', () => console.log(`[AudioPlayer] 元数据加载完成: ${this.audioSrc}, 时长: ${this.audio.duration}秒`));
+            this.audio.addEventListener('loadeddata', () => console.log(`[AudioPlayer] 数据加载完成: ${this.audioSrc}`));
+            this.audio.addEventListener('canplay', () => console.log(`[AudioPlayer] 可以播放: ${this.audioSrc}`));
+            this.audio.addEventListener('canplaythrough', () => console.log(`[AudioPlayer] 可以流畅播放: ${this.audioSrc}`));
+            this.audio.addEventListener('waiting', () => console.log(`[AudioPlayer] 等待数据: ${this.audioSrc}`));
+            this.audio.addEventListener('error', (e) => console.error(`[AudioPlayer] 错误: ${this.audioSrc}`, e));
+            
+            // 监控播放进度
+            this.progressInterval = setInterval(() => {
+                if (this.isPlaying) {
+                    console.log(`[AudioPlayer] 播放进度: ${this.audio.currentTime.toFixed(2)}/${this.audio.duration.toFixed(2)}秒 (${(this.audio.currentTime / this.audio.duration * 100).toFixed(1)}%)`);
+                }
+            }, 1000);
+        }
         
         if (this.options.autoplay) {
             this.play();
@@ -75,6 +107,8 @@ class AudioPlayer {
      * @returns {Promise} 播放操作的 Promise
      */
     async play() {
+        if (this.options.debug) console.log(`[AudioPlayer] 尝试播放: ${this.audioSrc}`);
+        
         // 检查是否在场景选择器中
         const sceneSelector = document.getElementById('sceneSelector');
         if (sceneSelector && sceneSelector.style.display !== 'none') {
@@ -137,6 +171,7 @@ class AudioPlayer {
      * 暂停音频
      */
     pause() {
+        if (this.options.debug) console.log(`[AudioPlayer] 暂停: ${this.audioSrc}`);
         if (!this.isPlaying) return;
         
         this.audio.pause();
@@ -156,6 +191,7 @@ class AudioPlayer {
      * 停止音频
      */
     stop() {
+        if (this.options.debug) console.log(`[AudioPlayer] 停止: ${this.audioSrc}`);
         this.pause();
         this.audio.currentTime = 0;
     }
@@ -188,6 +224,30 @@ class AudioPlayer {
      */
     setCurrentTime(time) {
         this.audio.currentTime = time;
+    }
+
+    /**
+     * 销毁
+     */
+    destroy() {
+        if (this.options.debug) console.log(`[AudioPlayer] 销毁: ${this.audioSrc}`);
+        
+        this.stop();
+        
+        // 清除事件监听器
+        this.audio.onplay = null;
+        this.audio.onpause = null;
+        this.audio.onended = null;
+        
+        // 清除进度监控
+        if (this.progressInterval) {
+            clearInterval(this.progressInterval);
+        }
+        
+        // 释放资源
+        this.audio.src = '';
+        this.audio.load();
+        this.audio = null;
     }
 }
 
